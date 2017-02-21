@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>发起签到</title>
+    <link rel="stylesheet" href="../lib/weui_v1.0.2.min.css" />
+    <script src="../api/api.js"></script>
+    <style>
+        #chooseAddr {
+            margin:2em auto;
+            width:90%;
+        }
+        
+        .chooseAddr {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page__bd page__bd_spacing">
+        <a href="javascript:;" class="weui-btn weui-btn_default" id="chooseAddr" onclick="showMap()">点击选择发起签到位置</a>
+    </div>
+    <div class="weui-cells weui-cells_form ">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">地址:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="poiaddress" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">位置名称:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="poiname" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label for="" class="weui-label">起始时间:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="datetime-local" placeholder="" id="fromTime" />
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label for="toTime" class="weui-label">结束时间:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="datetime-local" value="" placeholder="" id="toTime" />
+            </div>
+        </div>
+    </div>
+    <div class="weui-btn-area">
+        <a href="javascript:;" class="weui-btn weui-btn_primary" id="launchSignIn" onclick="postSignForm()">发起签到</a>
+        <a href="./index.html" class="weui-btn weui-btn_default">返回</a>
+    </div>
+    <div class="chooseAddr">
+        <iframe id="mapPage" width="100%" height="100%" frameborder=0 src="http://apis.map.qq.com/tools/locpicker?search=1&type=1&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp">
+        </iframe>
+        
+        <script>
+            api.token.initial('oken');
+            var chooseAddr =  document.getElementsByClassName('chooseAddr');
+            var launchSignIn = document.getElementById("launchSignIn");
+            var poiaddress = document.getElementById('poiaddress');
+            var poiname = document.getElementById('poiname');
+            var loc ;
+            function showMap(){
+                chooseAddr[0].style.display = "block";
+                }
+            window.addEventListener('message', function(event) {
+                // 接收位置信息，用户选择确认位置点后选点组件会触发该事件，回传用户的位置信息
+                 loc = event.data;
+                if (loc && loc.module == 'locationPicker') {//防止其他应用也会向该页面post信息，需判断module是否为'locationPicker'
+                    console.log('location', loc);  
+                   poiaddress.value = loc.poiaddress;
+                   poiname.value = loc.poiname;
+                    chooseAddr[0].style.display = "none";
+                }                                
+            }, false); 
+            // console.log(loc);
+
+                
+            var now = new Date();
+            var str = now.getFullYear() + "-" + fix((now.getMonth() + 1),2) + "-" + fix(now.getDate(),2) + "T" + fix(now.getHours(),2) + ":" + fix(now.getMinutes(),2);
+            document.getElementById('fromTime').value = str;
+
+            function fix(num, length) {
+                return ('' + num).length < length ? ((new Array(length + 1)).join('0') + num).slice(-length) : '' + num;
+            }
+            //发起签到
+            function postSignForm(){
+                if(!loc){
+                    alert("请选择发起签到的位置");
+                    return 0;
+                }
+                var fromTime = document.getElementById("fromTime").value;
+                var toTime  = document.getElementById("toTime").value;
+                // console.log(toTimes(fromTime));
+                // console.log(new Date().getTime());
+                if(toTimes(fromTime)< new Date().getTime()){
+                    alert("开始时间已过期");
+                    return;
+                }
+                if(toTimes(fromTime) >= toTimes(toTime)){
+                    alert("结束时间小于开始时间");
+                    return 0;
+                    
+                }
+
+                
+                var signForm = {
+                    fromTime:toTimes(fromTime),
+                    toTime: toTimes(toTime),
+                    latitude : loc.latlng.lat,
+                    longitude : loc.latlng.lng
+                };
+                // console.log(signForm);
+                api.guide.addSignForm(signForm).then( function(data){console.log(data)}).catch(function(error){console.log(error)});
+                window.location.href="./success.html";
+            }
+
+             //时间转换
+            function toTimes(localString){
+                if(localString){
+                    var datetime = localString.split("T");
+                    var date = datetime[0].split("-");
+                    var time = datetime[1].split(":");
+                    return new Date(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]), parseInt(time[0]), parseInt(time[1])).getTime();
+                }else{
+                    return '';
+                }
+            }
+        </script>
+    </div>
+</body>
+
+</html>

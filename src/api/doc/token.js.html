@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>token.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-api-auth.html">api-auth</a><ul class='methods'><li data-type='method'><a href="module-api-auth.html#.login">login</a></li><li data-type='method'><a href="module-api-auth.html#.logout">logout</a></li></ul></li><li><a href="module-api-guide.html">api-guide</a><ul class='methods'><li data-type='method'><a href="module-api-guide.html#.addSignForm">addSignForm</a></li><li data-type='method'><a href="module-api-guide.html#.bindByUids">bindByUids</a></li><li data-type='method'><a href="module-api-guide.html#.exportBound">exportBound</a></li><li data-type='method'><a href="module-api-guide.html#.exportByUids">exportByUids</a></li><li data-type='method'><a href="module-api-guide.html#.getBetween">getBetween</a></li><li data-type='method'><a href="module-api-guide.html#.getByName">getByName</a></li><li data-type='method'><a href="module-api-guide.html#.getByUids">getByUids</a></li><li data-type='method'><a href="module-api-guide.html#.getNotes">getNotes</a></li><li data-type='method'><a href="module-api-guide.html#.getSignData">getSignData</a></li><li data-type='method'><a href="module-api-guide.html#.getSignForms">getSignForms</a></li><li data-type='method'><a href="module-api-guide.html#.getUnsigned">getUnsigned</a></li><li data-type='method'><a href="module-api-guide.html#.importNbind">importNbind</a></li><li data-type='method'><a href="module-api-guide.html#.postInfo">postInfo</a></li><li data-type='method'><a href="module-api-guide.html#.unbindByUids">unbindByUids</a></li><li data-type='method'><a href="module-api-guide.html#.updateState">updateState</a></li><li data-type='method'><a href="module-api-guide.html#~postForm">postForm</a></li><li data-type='method'><a href="module-api-guide.html#~postJSON">postJSON</a></li></ul></li><li><a href="module-api-student.html">api-student</a><ul class='methods'><li data-type='method'><a href="module-api-student.html#.deleteNote">deleteNote</a></li><li data-type='method'><a href="module-api-student.html#.getInfo">getInfo</a></li><li data-type='method'><a href="module-api-student.html#.getNotes">getNotes</a></li><li data-type='method'><a href="module-api-student.html#.getSignForm">getSignForm</a></li><li data-type='method'><a href="module-api-student.html#.postInfo">postInfo</a></li><li data-type='method'><a href="module-api-student.html#.postNote">postNote</a></li><li data-type='method'><a href="module-api-student.html#.postSignData">postSignData</a></li><li data-type='method'><a href="module-api-student.html#~postJSON">postJSON</a></li></ul></li><li><a href="module-http.html">http</a><ul class='methods'><li data-type='method'><a href="module-http.html#.post">post</a></li></ul></li><li><a href="module-token.html">token</a><ul class='methods'><li data-type='method'><a href="module-token.html#.delToken">delToken</a></li><li data-type='method'><a href="module-token.html#.getToken">getToken</a></li><li data-type='method'><a href="module-token.html#.initial">initial</a></li><li data-type='method'><a href="module-token.html#.setToken">setToken</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">token.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * token管理模块
+ * @module token
+ * @author initial-wu
+ */
+var token;
+/**
+ * 设置token，同时缓存到 localStorage 和 cookie
+ * 
+ * @export
+ * @param {any} aToken
+ */
+export function setToken(aToken, type) {
+    if (process.env.NODE_ENV !== 'production') console.log('[token.setToken]', aToken);
+    token = aToken;
+    if (aToken) {
+        localStorage.setItem('t' + type, aToken);
+        CookieUtil.set('t' + type, aToken);
+    } else {
+        delToken();
+    }
+}
+
+/**
+ * 删除token
+ * 
+ * @export
+ */
+export function delToken(type) {
+    localStorage.removeItem('t' + type);
+    CookieUtil.unset('t' + type);
+}
+
+/**
+ * 取token
+ * 
+ * @export
+ * @returns token
+ */
+export function getToken() {
+    return token;
+}
+
+
+/**
+ * 初始化token
+ * - 在 localStorage 和 cookie 中查找 token
+ * - token 存在，调用 setToken
+ * 
+ * @export
+ * @returns 是否有 token
+ */
+export function initial(type) {
+    setToken(localStorage.getItem('t' + type) || CookieUtil.get('t' + type));
+    return getToken();
+}
+
+
+const CookieUtil = {
+    get(name) {
+        var cookieName = encodeURIComponent(name) + '=',
+            cookieStart = document.cookie.indexOf(cookieName),
+            cookieValue = null;
+        if (cookieStart > -1) {
+            var cookieEnd = document.cookie.indexOf(';', cookieStart);
+            if (cookieEnd == -1) {
+                cookieEnd = document.cookie.length;
+            }
+            cookieValue = decodeURIComponent(document.cookie.substring(cookieStart + cookieName.length, cookieEnd));
+        }
+        return cookieValue;
+    },
+    set(name, value, expires, path, domain, secure) {
+        var cookieText = encodeURIComponent(name) + '=' +
+            encodeURIComponent(value);
+        if (expires instanceof Date) {
+            cookieText += '; expires=' + expires.toGMTString();
+        }
+
+        if (path) {
+            cookieText += '; path=' + path;
+        }
+
+        if (domain) {
+            cookieText += '; domain=' + domain;
+        }
+
+        if (secure) {
+            cookieText += '; secure';
+        }
+
+        document.cookie = cookieText;
+    },
+    unset(name, path, domain, secure) {
+        this.set(name, '', new Date(0), path, domain, secure);
+    }
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Nov 30 2016 11:11:49 GMT+0800 (中国标准时间) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
