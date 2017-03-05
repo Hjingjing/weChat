@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>请假条信息</title>
+    <link rel="stylesheet" href="../lib/weui_v1.0.2.min.css">
+</head>
+
+<body>
+<!-- start 请假数据详情 -->
+<div class="container" id="container">
+    <div class="page input js_show">
+        <div class="page__bd">
+
+            <div class="weui-cells__title">学生信息</div>
+            <div class=" weui-cells weui-cells_form">
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" id="">姓名</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" id="name" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label">班级</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" id="clazz" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label">学号</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" id="uid" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" for="telephone">本人电话</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input phone" type="text" id="telephone" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" for="fatherTelephone">父亲电话</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input phone" id="fatherTelephone" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" for="motherTelephone">母亲电话</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input phone" id="motherTelephone" readonly="readonly"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weui-cells__title">请假详情</div>
+            <div class="weui-cells weui-cells_form">
+                <div class="weui-cell weui-cell_select weui-cell_select-after">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" for="type">假别</label>
+                    </div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <select class="weui-select" name="type" id="type" style="color: black" onchange="changeTypes()" disabled>
+                            <option value="affair" id="事假">事假</option>
+                            <option value="sick" id="病假">病假</option>
+                            <option value="meeting" id="周会假">周会假</option>
+                            <option value="practice" id="实习假">实习假</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <textarea class="weui-textarea" name="textarea" id="reason" rows="3"
+                                  readonly="readonly"></textarea>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell-hd">
+                        <label class="weui-label" for="fromTime">开始时间</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" id="fromTime" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell-hd">
+                        <label class="weui-label" for="toTime">结束时间</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" id="toTime" readonly="readonly"/>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after" id="yesOptionLeave">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" for="">是否离校</label>
+                    </div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <select class="weui-select" name="" id="leaveSchool" disabled style="color: black"
+                                onchange="changeLeaveSchools()">
+                            <option value="false">否</option>
+                            <option value="true">是</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="weui-cell" id="toPlaceDiv" style="display: none">
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <textarea class="weui-textarea" name="toPlace" id="toPlace" rows="2"
+                                  readonly="readonly"></textarea>
+                    </div>
+                </div>
+
+                <div class="weui-cell weui-cell_select weui-cell_select-after">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label" for="">告知家长</label>
+                    </div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <select class="weui-select" name="toldParents" id="toldParents" disabled style="color: black">
+                            <option value="false" id="是">否</option>
+                            <option value="true" id="否">是</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!--START 实习信息部分-->
+            <div id="PracticeInfo" style="display: none">
+                <div class="weui-cells__title practice">实习信息</div>
+                <div class="weui-cells weui-cells_form practice">
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label" for="">实习单位</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input type="text" class="weui-input" id="practiceUnit" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label">实习职位</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" id="practiceJob" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label" for="">实习地址</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input type="text" class="weui-input" id="practiceAddress" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label">单位联系人1</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" id="practiceLinkmanNameA" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label">联系人1职位</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" id="practiceLinkmanJobA" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label" for="practiceLinkmanTelA" >联系人1电话</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input phone-number" type="text" id="practiceLinkmanTelA" oninput="phoneTest()"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label">单位联系人2</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" id="practiceLinkmanNameB" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label">联系人2职位</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" id="practiceLinkmanJobB" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label"  for="practiceLinkmanTelB" >联系人2电话</label>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input phone-number" type="text" id="practiceLinkmanTelB" oninput="phoneTest()"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--END 实习信息部分-->
+
+            <div class="weui-cells__title">批准信息</div>
+            <div class="weui-cells weui-cells_form">
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label">批准人</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="guideName" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__hd">
+                        <label class="weui-label">联系电话</label>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="guideTelephone" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell-hd">
+                        <label class="weui-label" for="commitTime">提交时间</label>
+                    </div>
+                    <div class="weui-cell-bd">
+                        <input class="weui-input" type="text" id="commitTime" readonly="readonly"/>
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell-hd">
+                        <label class="weui-label" for="handleTime">处理时间</label>
+                    </div>
+                    <div class="weui-cell-bd">
+                        <input class="weui-input" type="text" id="handleTime" style="display: none;"
+                               readonly="readonly"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weui-footer">
+                <div class="weui-btn-area">
+                    <a href="javascript:deleteTiao();" class="weui-btn weui-btn_mini weui-btn_warn" id="delete"
+                       style="color: white;margin: 0 10px;">删除</a>
+                    <a href="javascript:eraser();" class="weui-btn weui-btn_mini weui-btn_default" id="eraser"
+                       style="margin: 0 10px;">修改</a>
+                    <a href="javascript:commit();" class="weui-btn weui-btn_mini weui-btn_primary" id="commit"
+                       style="color: white;margin: 0 10px;">提交</a>
+                </div>
+                <div class="weui-footer__links" style="margin: 20px auto 5px;">
+                    <a href="http://www.whutosa.com/" class="weui-footer__link">Powered by 开源技术协会</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end 请假数据详情 -->
+
+<script src="../lib/jquery-3.1.1.js"></script>
+<script src="../api.js"></script>
+<script src="js/student_leave_info.js"></script>
+
+</body>
+</html>

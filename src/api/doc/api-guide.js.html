@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>api-guide.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-api-auth.html">api-auth</a><ul class='methods'><li data-type='method'><a href="module-api-auth.html#.login">login</a></li><li data-type='method'><a href="module-api-auth.html#.logout">logout</a></li></ul></li><li><a href="module-api-guide.html">api-guide</a><ul class='methods'><li data-type='method'><a href="module-api-guide.html#.addSignForm">addSignForm</a></li><li data-type='method'><a href="module-api-guide.html#.bindByUids">bindByUids</a></li><li data-type='method'><a href="module-api-guide.html#.exportBound">exportBound</a></li><li data-type='method'><a href="module-api-guide.html#.exportByUids">exportByUids</a></li><li data-type='method'><a href="module-api-guide.html#.getBetween">getBetween</a></li><li data-type='method'><a href="module-api-guide.html#.getByName">getByName</a></li><li data-type='method'><a href="module-api-guide.html#.getByUids">getByUids</a></li><li data-type='method'><a href="module-api-guide.html#.getNotes">getNotes</a></li><li data-type='method'><a href="module-api-guide.html#.getSignData">getSignData</a></li><li data-type='method'><a href="module-api-guide.html#.getSignForms">getSignForms</a></li><li data-type='method'><a href="module-api-guide.html#.getUnsigned">getUnsigned</a></li><li data-type='method'><a href="module-api-guide.html#.importNbind">importNbind</a></li><li data-type='method'><a href="module-api-guide.html#.postInfo">postInfo</a></li><li data-type='method'><a href="module-api-guide.html#.unbindByUids">unbindByUids</a></li><li data-type='method'><a href="module-api-guide.html#.updateState">updateState</a></li><li data-type='method'><a href="module-api-guide.html#~postForm">postForm</a></li><li data-type='method'><a href="module-api-guide.html#~postJSON">postJSON</a></li></ul></li><li><a href="module-api-student.html">api-student</a><ul class='methods'><li data-type='method'><a href="module-api-student.html#.deleteNote">deleteNote</a></li><li data-type='method'><a href="module-api-student.html#.getInfo">getInfo</a></li><li data-type='method'><a href="module-api-student.html#.getNotes">getNotes</a></li><li data-type='method'><a href="module-api-student.html#.getSignForm">getSignForm</a></li><li data-type='method'><a href="module-api-student.html#.postInfo">postInfo</a></li><li data-type='method'><a href="module-api-student.html#.postNote">postNote</a></li><li data-type='method'><a href="module-api-student.html#.postSignData">postSignData</a></li><li data-type='method'><a href="module-api-student.html#~postJSON">postJSON</a></li></ul></li><li><a href="module-http.html">http</a><ul class='methods'><li data-type='method'><a href="module-http.html#.post">post</a></li></ul></li><li><a href="module-token.html">token</a><ul class='methods'><li data-type='method'><a href="module-token.html#.delToken">delToken</a></li><li data-type='method'><a href="module-token.html#.getToken">getToken</a></li><li data-type='method'><a href="module-token.html#.initial">initial</a></li><li data-type='method'><a href="module-token.html#.setToken">setToken</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">api-guide.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * 辅导员用户api
+ * @module api-guide
+ * @author initial-wu
+ */
+
+/**
+ * 业务api最终返回的Promise的then回调
+ * @callback finalThenCallback
+ * @param {Object} data 业务数据
+ */
+
+/**
+ * 业务api最终返回的Promise的catch回调
+ * @callback finalCatchCallback
+ * @param {Error} err 错误，包含错误信息
+ * @param {string} err.message 错误信息
+ */
+
+/**
+ * http中间件返回的Promise的catch回调
+ * @callback middleCatchCallback
+ * @param {Object} res http返回
+ * @param {number} res.status 状态码
+ * @param {Object} res.data 业务数据
+ */
+
+import { post } from './http.js';
+import { getToken } from './token.js';
+import qs from 'qs';
+
+var urlBase = 'http://www.yml666.com/stumanager';
+
+/**
+ * http中间件
+ * - 在请求数据中混入token
+ * - 捕获返回数据中的全局错误
+ * 
+ * @param {string} path 路径
+ * @param {Object} params 参数包装成对象
+ * @returns  Promise 需要在then()的回调中分析并抛出业务级错误
+ */
+function postJSON(path, params) {
+    params.token = getToken();
+    return post(urlBase + path, qs.stringify(params)).then((res) => {
+        switch (res.status) {
+        case 1003: throw new Error('INVALID_TOKEN');
+        case 1004: throw new Error('FORBIDDEN');
+        default: return res;
+        }
+    });
+}
+
+/**
+ * http中间件
+ * - 在请求数据中混入token
+ * - 捕获返回数据中的全局错误
+ * 
+ * @param {string} path 路径
+ * @param {FormData} formData 参数包装成FormData
+ * @returns  Promise 需要在then()的回调中分析并抛出业务级错误
+ */
+function postForm(path, formData) {
+    formData.append('token', getToken());
+    return post(urlBase + path, formData).then((res) => {
+        switch (res.status) {
+        case 1003: throw new Error('INVALID_TOKEN');
+        case 1004: throw new Error('FORBIDDEN');
+        default: return res;
+        }
+    });
+}
+
+/**
+ * 通过学号区间搜索学生
+ * 
+ * @export
+ * @param {string} bound - 只能为bound/unbound
+ * @param {string} beginUid 开始学号，可以不完整
+ * @param {string} endUid 结束学号，可以不完整
+ * @param {number} pageNum 页码，从 1 开始
+ * @param {number} pageSize 页面大小，最小为 1
+ * @returns {Function} promise.catch 传入回调 catch(function(err){}) err.message:错误信息
+ * @returns {Function} promise.then 传入回调 then(function(data){}) data.total:总数，data.list:学生数组
+ */
+export function getBetween(bound, beginUid, endUid, pageNum, pageSize) {
+    const path = '/guide/getStudentsByUidBetween.do';
+    return postJSON(path,
+        {
+            bound: bound === 'bound',
+            beginUid,
+            endUid,
+            page: typeof (pageNum) === 'number' ? pageNum - 1 : 0,
+            num: typeof (pageSize) === 'number' ? pageSize : 10
+        }
+    ).then(res => {
+        switch (res.status) {
+        case 0: return { list: res.data.contents, total: res.data.totalElements };
+        case 2002: return { list: [], total: 0 };
+        default: throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+/**
+ * 通过学生姓名搜索学生
+ * 
+ * @export
+ * @param {string} bound - 只能为bound/unbound
+ * @param {string} name 学生姓名
+ * @param {number} pageNum 页码，从 1 开始
+ * @param {number} pageSize 页面大小，最小为 1
+ * @returns {Promise}
+ */
+export function getByName(bound, name, pageNum, pageSize) {
+    const path = '/guide/getStudentsByName.do';
+    return postJSON(path,
+        {
+            bound: bound === 'bound',
+            name: name ? name : '%',
+            page: typeof (pageNum) === 'number' ? pageNum - 1 : 0,
+            num: typeof (pageSize) === 'number' ? pageSize : 10,
+            fuzzy: true
+        }).then(res => {
+            switch (res.status) {
+            case 0: return { list: res.data.contents, total: res.data.totalElements };
+            case 2002: return { list: [], total: 0 };
+            default: throw new Error('UNKNOWN_ERROR');
+            }
+        });
+}
+
+
+/**
+ * 通过学号数组绑定学生
+ * 
+ * @export
+ * @param {string[]} uids 学号数组
+ */
+export function bindByUids(uids) {
+    const path = '/guide/bindStudents.do';
+    let str = '';
+    uids.forEach(uid => str += ',' + uid);
+    return postJSON(path,
+        { uids: str.substring(1) }
+    ).then(res => {
+        if (res.status === 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+/**
+ * 通过学号数组解绑学生
+ * 
+ * @export
+ * @param {string[]} uids 学号数组
+ */
+export function unbindByUids(uids) {
+    const path = '/guide/unbindStudents.do';
+    let str = '';
+    uids.forEach(uid => str += ',' + uid);
+    return postJSON(path,
+        { uids: str.substring(1) }
+    ).then(res => {
+        if (res.status === 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+/**
+ * 更新学生信息
+ * 
+ * @export
+ * @param {Object} info
+ */
+export function postInfo(info) {
+    const path = '/guide/modifyStudentInfo.do';
+    return postJSON(
+        path,
+        info
+    ).then(res => {
+        if (res.status == 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+/**
+ * 导入学生信息
+ * 
+ * @export
+ * @param {FormData} formData 包含excel文件
+ */
+export function importNbind(formData) {
+    const path = '/guide/importStudentInfos.do';
+    postForm(
+        path,
+        formData
+    ).then(res => {
+        if (res.status === 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+
+/**
+ * 导出学生信息
+ * 
+ * @export
+ * @param {any} cb
+ */
+export function exportBound() {
+    console.log('api-exportBoundStudents');
+    const form = document.createElement('form');
+    form.setAttribute('style', 'display:none');
+    form.setAttribute('action', urlBase + '/guide/getMyStudents.do');
+    form.setAttribute('method', 'POST');
+
+    const tokenInput = document.createElement('input');
+    tokenInput.setAttribute('name', 'token');
+    tokenInput.setAttribute('value', getToken());
+
+    const toExcelInput = document.createElement('input');
+    toExcelInput.setAttribute('name', 'toexcel');
+    toExcelInput.setAttribute('value', 'true');
+
+    form.appendChild(tokenInput);
+    form.appendChild(toExcelInput);
+
+    form.submit();
+}
+/**
+ * 导出学生信息
+ * 
+ * @export
+ * @param {any} cb
+ */
+export function exportByUids(uids) {
+    console.log('api-exportBoundStudents');
+    const form = document.createElement('form');
+    form.setAttribute('style', 'display:none');
+    form.setAttribute('action', urlBase + '/guide/getStudentsByUids.do');
+    form.setAttribute('method', 'POST');
+
+    const tokenInput = document.createElement('input');
+    tokenInput.setAttribute('name', 'token');
+    tokenInput.setAttribute('value', getToken());
+
+    const toExcelInput = document.createElement('input');
+    toExcelInput.setAttribute('name', 'toexcel');
+    toExcelInput.setAttribute('value', 'true');
+
+    let str = '';
+    uids.forEach(uid => str += ',' + uid);
+    const uidsInput = document.createElement('input');
+    uidsInput.setAttribute('name', 'uids');
+    uidsInput.setAttribute('value', str.substring(1));
+
+    console.log(toExcelInput);
+    form.appendChild(toExcelInput);
+    form.appendChild(uidsInput);
+    form.appendChild(tokenInput);
+
+    form.submit();
+}
+
+
+/**
+ * 获取假条
+ * 
+ * @export
+ * @param {string} state 状态，只能为all/pending/approved/forbidden/finished
+ * @param {Object} limits 限制条件
+ * @param {string} limits.type 假别，只能为affair/sick/meeting/practice
+ * @param {string} limits.out 是否离校，只能为TRUE/FALSE
+ * @param {number} pageNum 页码，从 1 开始
+ * @param {number} pageSize 页面大小，最小为 1
+ */
+export function getNotes(state, { type, out }, pageNum, pageSize) {
+    const path = '/guide/getLeaveNotes.do';
+    const params = {};
+    if (state &amp;&amp; state !== 'all') params.state = state;
+    if (type) params.type = type;
+    if (out) params.leaveSchool = out === 'TRUE';
+    params.page = typeof (pageNum) === 'number' ? pageNum - 1 : 0;
+    params.num = typeof (pageSize) === 'number' ? pageSize : 10;
+    return postJSON(
+        path,
+        params
+    ).then(res => {
+        switch (res.status) {
+        case 0: return { list: res.data.contents, total: res.data.totalElements };
+        case 2002: return { list: [], total: 0 };
+        default: throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+/**
+ * 根据假条 lid 修改假条状态
+ * 
+ * @export
+ * @param {string} lid 假条id
+ * @param {string} state 状态，只能为approved/forbidden/finished
+ */
+export function updateState(lid, state) {
+    const path = '/guide/setLeaveNoteState.do';
+    const params = { lid, state };
+    return postJSON(
+        path,
+        params
+    ).then(res => {
+        if (res.status === 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+
+/**
+ * 增加签到
+ * 
+ * @export
+ * @param {Object} signForm
+ */
+export function addSignForm(signForm) {
+    const path = '/guide/launchSignIn.do';
+    return postJSON(
+        path,
+        signForm
+    ).then(res => {
+        if (res.status === 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+/**
+ * 获取已发布的签到 signForm
+ * 
+ * @export
+ * @param {number} pageNum 页码，从 1 开始
+ * @param {number} pageSize 页面大小，最小为 1
+ */
+export function getSignForms(pageNum, pageSize) {
+    const path = '/guide/getMySignInForms.do';
+    return postJSON(
+        path,
+        {
+            page: typeof (pageNum) === 'number' ? pageNum - 1 : 0,
+            num: typeof (pageSize) === 'number' ? pageSize : 10
+        }
+    ).then(res => {
+        switch (res.status) {
+        case 0: return { list: res.data.contents, total: res.data.totalElements };
+        case 2002: return { list: [], total: 0 };
+        default: throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+
+/**
+ * 根据 sfid 获取签到数据 signData
+ * 
+ * @export
+ * @param {string} sfid signForm id
+ * @param {number} pageNum 页码，从 1 开始
+ * @param {number} pageSize 页面大小，最小为 1
+ */
+export function getSignData(sfid, pageNum, pageSize) {
+    const path = '/guide/getSignInDatas.do';
+    return postJSON(
+        path,
+        {
+            sfid,
+            page: typeof (pageNum) === 'number' ? pageNum - 1 : 0,
+            num: typeof (pageSize) === 'number' ? pageSize : 10
+        }
+    ).then(res => {
+        switch (res.status) {
+        case 0: return { list: res.data.contents, total: res.data.totalElements };
+        case 2002: return { list: [], total: 0 };
+        default: throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}
+
+
+/**
+ * 根据 sfid 获取未签到学生的 uid 数组
+ * 
+ * @export
+ * @param {string} sfid signForm id
+ */
+export function getUnsigned(sfid) {
+    const path = '/guide/getUnsignedStudents.do';
+    return postJSON(
+        path,
+        { sfid }
+    ).then(res => {
+        if (res.status === 0) {
+            return res.data;
+        } else {
+            throw new Error('UNKOWN_ERROR');
+        }
+    });
+}
+
+
+/**
+ * 根据学生 uid 数组获取学生信息
+ * 
+ * @export
+ * @param {string[]} uids 学号数组
+ */
+export function getByUids(uids) {
+    const path = '/guide/getStudentsByUids.do';
+    let str = '';
+    uids.forEach(uid => str += ',' + uid);
+    return postJSON(path,
+        { uids: str.substring(1) }
+    ).then(res => {
+        switch (res.status) {
+        case 0: return res.data;
+        case 2002: return [];
+        default: throw new Error('UNKNOWN_ERROR');
+        }
+    });
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Nov 30 2016 11:11:49 GMT+0800 (中国标准时间) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

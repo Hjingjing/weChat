@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>请假条列表</title>
+    <link rel="stylesheet" href="../lib/weui_v1.0.2.min.css"/>
+    <link rel="stylesheet" href="css/tutor_leave_list.css">
+</head>
+
+<body>
+<div class="page" id="container">
+    <div class="page navbar">
+        <div class="page__bd page__bd_spacing" style="height: 100%;">
+            <div class="weui_tab">
+                <!--START 筛选表头-->
+                <div class="weui-cells__title">筛选信息</div>
+                <div class="weui-cells weui-cells_form">
+                    <div class="weui-cell weui-cell_select weui-cell_select-after">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label" for="">状态</label>
+                        </div>
+                        <div class="weui-cell__bd weui-cell_primary">
+                            <select class="weui-select" name="" id="state" onchange="changeStates()">
+                                <option value="all">所有</option>
+                                <option value="pending" id="pending">待处理</option>
+                                <option value="approved" id="approved">已批准</option>
+                                <option value="forbidden" id="forbidden">已拒绝</option>
+                                <option value="finished" id="finished">已销假</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="weui-cell weui-cell_select weui-cell_select-after">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label" for="">假别</label>
+                        </div>
+                        <div class="weui-cell__bd weui-cell_primary">
+                            <select class="weui-select" name="" id="type" onchange="changeTypes()">
+                                <option value="all">所有</option>
+                                <option value="affair" id="affair">事假</option>
+                                <option value="sick" id="sick">病假</option>
+                                <option value="meeting" id="meeting">周会假</option>
+                                <option value="practice" id="practice">实习假</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="weui-cell weui-cell_select weui-cell_select-after">
+                        <div class="weui-cell__hd">
+                            <label class="weui-label" for="">是否离校</label>
+                        </div>
+                        <div class="weui-cell__bd weui-cell_primary">
+                            <select class="weui-select" name="leaveSchool" id="leaveSchool"
+                                    onchange="changeLeaveSchools()">
+                                <option value="all">所有</option>
+                                <option value="true">是</option>
+                                <option value="false">否</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell-hd">
+                            <label class="weui-label" for="fromTime">开始时间</label>
+                        </div>
+                        <div class="weui-cell-bd" style="width: 15em">
+                            <input class="weui-input" type="datetime-local" id="fromTime" name="fromTime" oninput="changeFromTimes()"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell-hd">
+                            <label class="weui-label" for="toTime">结束时间</label>
+                        </div>
+                        <div class="weui-cell-bd" style="width: 15em">
+                            <input class="weui-input" type="datetime-local" id="toTime" name="toTime" oninput="changeToTime()" />
+                        </div>
+                    </div>
+                </div>
+                <!--END 筛选表头-->
+                <!--START 创建符合条件学生列表-->
+                <div class="weui-cells__title">
+                    <table style="width: 100%;text-align: center;">
+                        <tr>
+                            <td style="width: 100px;">姓名</td>
+                            <td style="width: 100px;">班级</td>
+                            <td style="width: 100px;">假别</td>
+                            <td style="width: 100px;">状态</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="weui-cells weui-cells_form" id="table">
+                    <!--<div class="weui-cell tutor_list">-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>韩荣吉</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>事假</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>离校</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label class="tutor_list_label tutor_list_pending">待审核</label>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell tutor_list">-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>韩荣吉</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>病假</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>不离校</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label class="tutor_list_label tutor_list_forbidden">已拒绝</label>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell tutor_list">-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>韩荣吉</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>周会假</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>离校</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label class="tutor_list_label tutor_list_approved">已批准</label>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell tutor_list">-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>韩荣吉</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>实习假</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label>离校</label>-->
+                    <!--</div>-->
+                    <!--<div class="weui-cell__bd">-->
+                    <!--<label class="tutor_list_label tutor_list_finished">已销假</label>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                </div>
+                <!--END 创建符合条件学生列表-->
+            </div>
+        </div>
+    </div>
+</div>
+<!--<div class="weui-footer ">-->
+<!--<div class="weui-footer__links">-->
+<!--<a href="http://www.whutosa.com/" class="weui-footer__link">Powered by 开源技术协会</a>-->
+<!--</div>-->
+<!--</div>-->
+
+<script src="../lib/jquery-3.1.1.js"></script>
+<script src="../api-guide.js"></script>
+<script src="js/tutor_leave_index.js"></script>
+
+</body>
+</html>

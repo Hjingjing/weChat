@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>登陆</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        a {
+            text-decoration: none;
+            color: black;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+        }
+        /*登陆页面*/
+        
+        #login-mask {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            left: 0;
+            transition: all 0.5s;
+            -moz-transition: all 0.5s;
+            /* Firefox 4 */
+            -webkit-transition: all 0.5s;
+            /* Safari 和 Chrome */
+            -o-transition: all 0.5s;
+        }
+        
+        #login-mask {
+            background-color: white;
+        }
+
+        #logo img{
+            position: relative;
+            width: 300px;
+        }
+
+        #login-mask form {
+            width: 240px;
+            margin: 4rem auto 0;
+            line-height: 2em;
+        }
+        
+        #login-mask table {
+            width: 100%;
+        }
+        
+        #login-mask td {
+            text-align: center;
+        }
+        
+        #login-mask header {
+            font-size: 2em;
+            margin-bottom: 2em;
+        }
+
+        #login-mask .text {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            height: 1.5rem;
+            padding: 0.2em;
+            border: none;
+            border-bottom: 1px solid #eee;
+            outline: medium;
+        }
+        
+        #login-mask label {
+            text-align: center;
+            display: inline-block;
+            width: 50%;
+        }
+        
+        #submit-button {
+            text-align: center;
+            background-color: #ca2cba;
+            margin: 1em 0;
+            color: white;
+            padding: 0.2em;
+            border-radius: 3px;
+        }
+        
+        #login-mask footer {
+            font-size: 0.8em;
+            margin-top: 2em;
+            color: #999;
+        }
+        /*登陆页面 end*/
+    </style>
+</head>
+
+<body>
+    <!-- 登陆页面 -->
+    <div id="login-mask">
+        <form>
+            <div id="logo"><img src="image/logo.png"></div>
+            <header>登陆</header>
+            <table>
+                <tbody>
+                    <tr>
+                        <td colspan="2"><input type="text" name="uid" placeholder="账号" class="text"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><input type="password" name="pswd" placeholder="密码" class="text"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="type-student"><input type="radio" id="type-student" name="type" value="student">学生</label></td>
+                        <td><label for="type-guide"><input type="radio" id="type-guide" name="type" value="guide">辅导员</label></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div id="submit-button">登陆</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <footer>
+                <p id="input-tip"></p>
+            </footer>
+        </form>
+    </div>
+    <!-- /登陆页面 -->
+    <script>
+var ajax={
+    post: function(url, formUrlEncoded, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(xhr.status >= 500){
+                    callback("500");
+                }
+                else{
+                    callback(xhr.responseText);
+                }
+            }
+        }
+        xhr.open("post",url,true);
+        xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        xhr.send(formUrlEncoded);
+    }
+};
+//登陆过程封装绑定，token保存，立即执行
+(function(){
+    var url = "http://yml666.com/stumanager/user/login.do";
+    var ajaxCallback = function(responseText){
+        var res = JSON.parse(responseText);
+        console.log(res);
+        if(res.status === 1001){
+            alert("账号和密码不匹配");
+            submitButton.innerHTML = "登陆";
+            submitButton.onclick = submitClickHandler;
+            return;
+        }
+        if(res.status === 1004){
+            alert("账号和身份选项不匹配");
+            submitButton.innerHTML = "登陆";
+            submitButton.onclick = submitClickHandler;
+            return;
+        }
+        if(res.status === 0){
+            submitButton.innerHTML = "登陆成功";
+            localStorage.setItem("token",res.data.token);
+            if(typeRadios[0].checked){
+                inputTip.innerHTML = res.data.token;
+                //location.assign('/stumanager/user/student/index.html');
+            }
+            if(typeRadios[1].checked){
+                inputTip.innerHTML = res.data.token;
+                //location.assign('/stumanager/user/guide/index.html');
+            }
+        }
+    };
+
+    //需要重复绑定，故将事件处理函数封装
+    var submitButton = document.getElementById("submit-button");
+    var submitClickHandler = function(){
+        var uid = document.forms[0].elements["uid"].value;
+        var password = document.forms[0].elements["pswd"].value;
+        var type = document.forms[0].elements["type"].value;
+        if(uid.length === 0){
+            alert("请输入账号");
+            return;
+        }
+        if(password.length === 0){
+            alert("请输入密码");
+            return;
+        }
+        ajax.post(url, "uid="+ uid + "&pswd=" + password + "&type=" + type, ajaxCallback);
+        this.innerHTML = "正在登陆";
+        this.onclick = null;
+    };
+    //初始化绑定点击事件
+    submitButton.onclick = submitClickHandler;
+
+    //单选框事件处理
+    var tipForStudent = "学生账号为学号，密码为教务处密码";
+    var tipForGuide = "辅导员账号为职工号，密码为理工党员网密码，默认为身份证后6位";
+    var typeRadios = document.forms[0].elements["type"];
+    var inputTip = document.getElementById("input-tip");
+    typeRadios[0].onchange = function(){
+        inputTip.innerHTML = tipForStudent;
+        console.log(this);
+    }
+    typeRadios[1].onchange = function(){
+        inputTip.innerHTML = tipForGuide;
+        console.log("1");
+    }
+    //单选框和提示初始化
+    typeRadios[0].checked = true;
+    inputTip.innerHTML = tipForStudent;
+}());
+</script>
+</body>
+
+</html>
